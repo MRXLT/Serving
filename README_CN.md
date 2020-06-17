@@ -55,16 +55,16 @@ pip install paddle-serving-server-gpu # GPU
 
 如果需要使用develop分支编译的安装包，请从[最新安装包列表](./doc/LATEST_PACKAGES.md)中获取下载地址进行下载，使用`pip install`命令进行安装。
 
-客户端安装包支持Centos 7和Ubuntu 18，或者您可以使用HTTP服务，这种情况下不需要安装客户端。
+Paddle Serving安装包支持Centos 6/7和Ubuntu 16/18，或者您可以使用HTTP服务，这种情况下不需要安装客户端。
 
 <h2 align="center"> Paddle Serving预装的服务 </h2>
 
 <h3 align="center">中文分词</h4>
 
 ``` shell
-> python -m paddle_serving_app.package -get_model lac
+> python -m paddle_serving_app.package --get_model lac
 > tar -xzf lac.tar.gz
-> python lac_web_service.py 9292 &
+> python lac_web_service.py lac_model/ lac_workdir 9393 &
 > curl -H "Content-Type:application/json" -X POST -d '{"feed":[{"words": "我爱北京天安门"}], "fetch":["word_seg"]}' http://127.0.0.1:9393/lac/prediction
 {"result":[{"word_seg":"我|爱|北京|天安门"}]}
 ```
@@ -78,7 +78,7 @@ pip install paddle-serving-server-gpu # GPU
 <p>
     
 ``` shell
-> python -m paddle_serving_app.package -get_model resnet_v2_50_imagenet
+> python -m paddle_serving_app.package --get_model resnet_v2_50_imagenet
 > tar -xzf resnet_v2_50_imagenet.tar.gz
 > python resnet50_imagenet_classify.py resnet50_serving_model &
 > curl -H "Content-Type:application/json" -X POST -d '{"feed":[{"image": "https://paddle-serving.bj.bcebos.com/imagenet-example/daisy.jpg"}], "fetch": ["score"]}' http://127.0.0.1:9292/image/prediction
@@ -115,9 +115,9 @@ python -m paddle_serving_server.serve --model uci_housing_model --thread 10 --po
 | `port` | int | `9292` | Exposed port of current service to users|
 | `name` | str | `""` | Service name, can be used to generate HTTP request url |
 | `model` | str | `""` | Path of paddle model directory to be served |
-| `mem_optim` | bool | `False` | Enable memory optimization |
-| `ir_optim` | bool | `False` | Enable analysis and optimization of calculation graph |
-| `use_mkl` (Only for cpu version) | bool | `False` | Run inference with MKL |
+| `mem_optim` | - | - | Enable memory optimization |
+| `ir_optim` | - | - | Enable analysis and optimization of calculation graph |
+| `use_mkl` (Only for cpu version) | - | - | Run inference with MKL |
 
 我们使用 `curl` 命令来发送HTTP POST请求给刚刚启动的服务。用户也可以调用python库来发送HTTP POST请求，请参考英文文档 [requests](https://requests.readthedocs.io/en/master/)。
 </center>
@@ -181,7 +181,7 @@ print(fetch_map)
 - [GPU版Benchmarks](doc/GPU_BENCHMARKING.md)
 
 ### FAQ
-- [常见问答](doc/deprecated/FAQ.md)
+- [常见问答](doc/FAQ.md)
 
 ### 设计文档
 - [Paddle Serving设计文档](doc/DESIGN_DOC_CN.md)
