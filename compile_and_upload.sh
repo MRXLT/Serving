@@ -1,8 +1,8 @@
 set -e
 set -v
 
-version=0.2.2
-app_version=0.0.3
+version=0.0.0
+app_version=0.0.0
 cd ./python
 python change_version.py $version
 cd ..
@@ -211,13 +211,13 @@ function upload_whl(){
     python ../bos_conf/upload_whl.py paddle_serving_client-$version-cp27-*
     python ../bos_conf/upload_whl.py paddle_serving_client-$version-cp36-*
     python ../bos_conf/upload_whl.py paddle_serving_client-$version-cp37-*
-    python ../bos_conf/upload_whl.py paddle_serving_server-$version-py2-none-any.whl  
-    python ../bos_conf/upload_whl.py paddle_serving_server-$version-py3-none-any.whl  
+    python ../bos_conf/upload_whl.py paddle_serving_server-$version-py2-none-any.whl
+    python ../bos_conf/upload_whl.py paddle_serving_server-$version-py3-none-any.whl
     python ../bos_conf/upload_whl.py paddle_serving_server_gpu-$version-py2-none-any.whl
     python ../bos_conf/upload_whl.py paddle_serving_server_gpu-$version-py3-none-any.whl
     python ../bos_conf/upload_whl.py paddle_serving_app-$app_version-py2-none-any.whl
     python ../bos_conf/upload_whl.py paddle_serving_app-$app_version-py3-none-any.whl
-    cd .. 
+    cd ..
 }
 
 #cpu-avx-openblas $1-avx  $2-mkl
