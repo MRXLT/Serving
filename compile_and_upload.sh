@@ -240,11 +240,11 @@ function upload_whl(){
 #change_py_version 37 && compile_client_py3
 
 #app
-compile_app
-change_py_version 36 && compile_app_py3
+#compile_app
+#change_py_version 36 && compile_app_py3
 
 #upload bin
 #upload_bin
 
 #upload whl
-upload_whl
+#upload_whl
