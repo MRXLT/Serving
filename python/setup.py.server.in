@@ -86,4 +86,6 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     license='Apache 2.0',
-    keywords=('paddle-serving serving-server deployment industrial easy-to-use'))
+    keywords=('paddle-serving serving-server deployment industrial easy-to-use'),
+    entry_points={'console_scripts':['serving = paddle_serving_server.commands:main']}
+    )

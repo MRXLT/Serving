@@ -15,7 +15,7 @@
 import sys
 import six
 import argparse
-from .hub_service_dict import hub_model_dict
+from .service_dict import hub_model_dict
 
 
 class ServingCommand(object):
@@ -56,6 +56,7 @@ class ServingCommand(object):
             model_name = self.args.hub_model
             if model_name in hub_model_dict:
                 hub_model_service = self.prepare_hub_model_service(model_name)
+                hub_model_service.prepare_pipeline_config()
                 hub_model_service.run_service()
             else:
                 print("Start hub serving instead.")
