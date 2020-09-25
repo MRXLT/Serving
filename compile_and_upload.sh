@@ -1,8 +1,8 @@
 set -e
 set -v
 
-version=0.3.2
-app_version=0.1.2
+version=0.0.0
+app_version=0.0.0
 cd ./python
 python change_version.py $version
 cd ..
@@ -10,12 +10,12 @@ cd ..
 alias ld=/root/env/bin/ld
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/python3.7/lib
 
-export PYTHONROOT=/usr/local/python2.7
+PYTHONROOT=/usr/local/python2.7
 PYTHON_INCLUDE_DIR_2=$PYTHONROOT/include/python2.7/
 PYTHON_LIBRARY_2=$PYTHONROOT/lib/libpython2.7.so
 PYTHON_EXECUTABLE_2=$PYTHONROOT/bin/python2.7
 
-export PYTHONROOT3=/usr/local/python3.6
+PYTHONROOT3=/usr/local/python3.6
 PYTHON_INCLUDE_DIR_3=$PYTHONROOT3/include/python3.6m/
 PYTHON_LIBRARY_3=$PYTHONROOT3/lib/libpython3.6m.so
 PYTHON_EXECUTABLE_3=$PYTHONROOT3/bin/python3.6m
@@ -23,14 +23,20 @@ PYTHON_EXECUTABLE_3=$PYTHONROOT3/bin/python3.6m
 function change_py_version(){
 py3_version=$1
 case $py3_version in
+35)
+PYTHONROOT3=/usr/local/
+PYTHON_INCLUDE_DIR_3=$PYTHONROOT3/include/python3.5m
+PYTHON_LIBRARY_3=$PYTHONROOT3/lib/libpython3.5m.so
+PYTHON_EXECUTABLE_3=$PYTHONROOT3/bin/python3.5m
+;;
 36)
-export PYTHONROOT3=/usr/local/python3.6
+PYTHONROOT3=/usr/local/python3.6
 PYTHON_INCLUDE_DIR_3=$PYTHONROOT3/include/python3.6m/
 PYTHON_LIBRARY_3=$PYTHONROOT3/lib/libpython3.6m.so
 PYTHON_EXECUTABLE_3=$PYTHONROOT3/bin/python3.6m
 ;;
 37)
-export PYTHONROOT3=/usr/local/python3.7
+PYTHONROOT3=/usr/local/python3.7
 PYTHON_INCLUDE_DIR_3=$PYTHONROOT3/include/python3.7m/
 PYTHON_LIBRARY_3=$PYTHONROOT3/lib/libpython3.7m.so
 PYTHON_EXECUTABLE_3=$PYTHONROOT3/bin/python3.7m
@@ -311,17 +317,18 @@ function compile(){
     #compile_trt
 
     #client
-    compile_client
-    change_py_version 36 && compile_client_py3
-    change_py_version 37 && compile_client_py3
+    #compile_client
+    change_py_version 35 && compile_client_py3
+    #change_py_version 36 && compile_client_py3
+    #change_py_version 37 && compile_client_py3
 
     #app
-    compile_app
-    change_py_version 36 && compile_app_py3
+    #compile_app
+    #change_py_version 36 && compile_app_py3
 }
 
 #compile
-#compile
+compile
 
 #upload bin
 #upload_bin
