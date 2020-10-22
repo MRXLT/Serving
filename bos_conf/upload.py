@@ -11,6 +11,8 @@ from baidubce.services.bos.bos_client import BosClient
 
 #新建BosClient
 bos_client = BosClient(bos_sample_conf.config)
-file_name = sys.argv[1]
-bos_client.put_object_from_file("paddle-serving", "bin/{}".format(file_name), "{}".format(file_name))
-print("upload {} success".format(file_name))
+path = sys.argv[1]
+file_name = sys.argv[2]
+bos_client.put_object_from_file("paddle-serving", "{}/{}".format(
+    path, file_name), "{}".format(file_name))
+print("upload {} to paddle/serving/{} success".format(file_name, path))
