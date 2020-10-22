@@ -4,11 +4,14 @@ set -v
 version=0.0.0
 app_version=0.0.0
 cd ./python
-python change_version.py $version
+#python change_version.py $version
 cd ..
 
-alias ld=/root/env/bin/ld
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/python3.7/lib
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
+
+cpu_num=40
 
 PYTHONROOT=/usr/local/python2.7
 PYTHON_INCLUDE_DIR_2=$PYTHONROOT/include/python2.7/
@@ -17,14 +20,14 @@ PYTHON_EXECUTABLE_2=$PYTHONROOT/bin/python2.7
 
 PYTHONROOT3=/usr/local/python3.6
 PYTHON_INCLUDE_DIR_3=$PYTHONROOT3/include/python3.6m/
-PYTHON_LIBRARY_3=$PYTHONROOT3/lib/libpython3.6m.so
+PYTHON_LIBRARY_3=$PYTHONROOT3/lib64/libpython3.6m.so
 PYTHON_EXECUTABLE_3=$PYTHONROOT3/bin/python3.6m
 
 function change_py_version(){
 py3_version=$1
 case $py3_version in
 35)
-PYTHONROOT3=/usr/local/
+PYTHONROOT3=/usr/local/python3.5
 PYTHON_INCLUDE_DIR_3=$PYTHONROOT3/include/python3.5m
 PYTHON_LIBRARY_3=$PYTHONROOT3/lib/libpython3.5m.so
 PYTHON_EXECUTABLE_3=$PYTHONROOT3/bin/python3.5m
@@ -88,7 +91,12 @@ CUDA_version=$1
 mkdir -p serving-gpu-$CUDA_version-$version
 cp ../build_gpu_server_$CUDA_version/output/demo/serving/bin/* serving-gpu-$CUDA_version-$version
 cp ../build_gpu_server_$CUDA_version/third_party/install/Paddle//third_party/install/mklml/lib/* serving-gpu-$CUDA_version-$version
+if [ $1 == trt ]
+then
+cp ../build_gpu_server_$CUDA_version/third_party/Paddle/src/extern_paddle/paddle/lib/libpaddle_fluid.so serving-gpu-$CUDA_version-$version
+else
 cp ../build_gpu_server_$CUDA_version/third_party/install/Paddle//third_party/install/mkldnn/lib/libdnnl.so.1 serving-gpu-$CUDA_version-$version
+fi
 cp_lib serving-gpu-$CUDA_version-$version
 tar -czvf serving-gpu-$CUDA_version-$version.tar.gz serving-gpu-$CUDA_version-$version/
 cd ..
@@ -120,7 +128,7 @@ cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_2 \
       -DWITH_AVX=$WITHAVX \
       -DWITH_MKL=$WITHMKL \
       -DSERVER=ON .. > compile_log
-make -j10 >> compile_log
+make -j$cpu_num >> compile_log
 make install >> compile_log
 cp_whl
 cd ..
@@ -139,7 +147,7 @@ cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_3 \
       -DWITH_AVX=$WITHAVX \
       -DWITH_MKL=$WITHMKL \
       -DSERVER=ON .. > compile_log
-make -j10 >> compile_log
+make -j$cpu_num >> compile_log
 make install >> compile_log
 cp_whl
 cd ..
@@ -153,10 +161,10 @@ clean_whl
 cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_2 \
     -DPYTHON_LIBRARY=$PYTHON_LIBRARY_2 \
     -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_2 \
-    -DCUDNN_LIBRARY=/root/cudnn/cuda9.0/cudnn-7.3.1/lib64 \
+    -DCUDNN_LIBRARY=/root/disk/env/cudnn/cuda9.0/cudnn-7.3.1/lib64 \
     -DWITH_GPU=ON \
     -DSERVER=ON .. > compile_log
-make -j10 >> compile_log
+make -j$cpu_num >> compile_log
 make install >> compile_log
 cp_whl
 cd ..
@@ -170,10 +178,10 @@ clean_whl
 cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_3 \
     -DPYTHON_LIBRARY=$PYTHON_LIBRARY_3 \
     -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_3 \
-    -DCUDNN_LIBRARY=/root/cudnn/cuda9.0/cudnn-7.3.1/lib64 \
+    -DCUDNN_LIBRARY=/root/disk/env/cudnn/cuda9.0/cudnn-7.3.1/lib64 \
     -DWITH_GPU=ON \
     -DSERVER=ON .. > compile_log
-make -j10 >> compile_log
+make -j$cpu_num >> compile_log
 make install >> compile_log
 cp_whl
 cd ..
@@ -188,10 +196,10 @@ cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_2 \
     -DPYTHON_LIBRARY=$PYTHON_LIBRARY_2 \
     -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_2 \
     -DWITH_GPU=ON \
-    -DCUDA_TOOLKIT_ROOT_DIR=/root/cuda-10.0 \
-    -DCUDNN_LIBRARY=/root/cudnn/cuda10.0/cudnn-7.5.1/lib64/ \
+    -DCUDA_TOOLKIT_ROOT_DIR=/root/disk/env/cuda-10.0 \
+    -DCUDNN_LIBRARY=/root/disk/env/cudnn/cuda10.0/cudnn-7.5.1/lib64/ \
     -DSERVER=ON .. > compile_log
-make -j10 >> compile_log
+make -j$cpu_num >> compile_log
 make install >> compile_log
 cp_whl
 cd ..
@@ -202,38 +210,70 @@ function compile_gpu_cuda103(){
 mkdir -p build_gpu_server_cuda103
 cd build_gpu_server_cuda103
 clean_whl
-cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_2 \
+cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_3 \
     -DPYTHON_LIBRARY=$PYTHON_LIBRARY_3 \
     -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_3 \
     -DWITH_GPU=ON \
-    -DCUDA_TOOLKIT_ROOT_DIR=/root/cuda-10.0 \
-    -DCUDNN_LIBRARY=/root/cudnn/cuda10.0/cudnn-7.5.1/lib64/ \
-    -DSERVER=ON .. > compile_log
-make -j10 >> compile_log
+    -DCUDA_TOOLKIT_ROOT_DIR=/root/disk/env/cuda-10.0 \
+    -DCUDNN_LIBRARY=/root/disk/env/cudnn/cuda10.0/cudnn-7.5.1/lib64 \
+    -DSERVER=ON  .. > compile_log
+make -j$cpu_num >> compile_log
 make install >> compile_log
 cp_whl
 cd ..
-pack_gpu cuda10
+#pack_gpu cuda10
 }
 
 function compile_trt(){
-mkdir -p build_trt_server
-cd build_trt_server
+mkdir -p build_gpu_server_trt
+cd build_gpu_server_trt
 clean_whl
-cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_2 -DPYTHON_LIBRARY=$PYTHON_LIBRARY_2 -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_2 -DWITH_GPU=ON -DSERVER=ON -DCUDNN_ROOT=/root/cuda-10.1/lib64 .. > compile_log
-make -j10 >> compile_log
+cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_2 \
+    -DPYTHON_LIBRARY=$PYTHON_LIBRARY_2 \
+    -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_2 \
+    -DWITH_GPU=ON \
+    -DSERVER=ON \
+    -DWITH_TRT=ON \
+    -DCUDA_TOOLKIT_ROOT_DIR=/root/disk/env/cuda-10.1 \
+    -DCUDNN_LIBRARY=/root/disk/env/cudnn/cuda10.1/cudnn-7.5.1/lib64/ \
+    -DTENSORRT_ROOT=/root/disk/env/TensorRT-6.0.1.5/ .. > compile_log
+make -j$cpu_num >> compile_log
 make install >> compile_log
-#cp_whl
+cp_whl
 cd ..
-#pack_gpu
+pack_gpu trt
+}
+
+function compile_trt_py3(){
+mkdir -p build_gpu_server_trt
+cd build_gpu_server_trt
+clean_whl
+cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_3 \
+    -DPYTHON_LIBRARY=$PYTHON_LIBRARY_3 \
+    -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_3 \
+    -DWITH_GPU=ON \
+    -DSERVER=ON \
+    -DCUDA_TOOLKIT_ROOT_DIR=/root/disk/env/cuda-10.1 \
+    -DCUDNN_LIBRARY=/root/disk/env/cudnn/cuda10.1/cudnn-7.5.1/lib64/ \
+    -DWITH_TRT=ON \
+    -DTENSORRT_ROOT=/root/disk/env/TensorRT-6.0.1.5/ .. > compile_log
+make -j$cpu_num >> compile_log
+make install >> compile_log
+cp_whl
+cd ..
+pack_gpu trt
 }
 
 function compile_client(){
 mkdir -p build_client
 cd build_client
 clean_whl
-cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_2  -DPYTHON_LIBRARY=$PYTHON_LIBRARY_2 -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_2 -DCLIENT=ON -DPACK=ON .. > compile_log
-make -j10 >> compile_log
+cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_2  \
+    -DPYTHON_LIBRARY=$PYTHON_LIBRARY_2 \
+    -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_2 \
+    -DCLIENT=ON \
+    -DPACK=ON .. > compile_log
+make -j$cpu_num >> compile_log
 #make install >> compile_log
 cp_whl
 cd ..
@@ -243,8 +283,12 @@ function compile_client_py3(){
 mkdir -p build_client_py3
 cd build_client_py3
 clean_whl
-cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_3 -DPYTHON_LIBRARY=$PYTHON_LIBRARY_3 -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_3 -DCLIENT=ON -DPACK=ON .. > compile_log
-make -j10 >> compile_log
+cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_3 \
+    -DPYTHON_LIBRARY=$PYTHON_LIBRARY_3 \
+    -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_3 \
+    -DCLIENT=ON \
+    -DPACK=ON .. > compile_log
+make -j$cpu_num >> compile_log
 #make install >> compile_log
 cp_whl
 cd ..
@@ -254,8 +298,11 @@ function compile_app(){
 mkdir -p build_app
 cd build_app
 clean_whl
-cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_2  -DPYTHON_LIBRARY=$PYTHON_LIBRARY_2 -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_2 -DAPP=ON .. > compile_log
-make -j10 >> compile_log
+cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_2  \
+    -DPYTHON_LIBRARY=$PYTHON_LIBRARY_2 \
+    -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_2 \
+    -DAPP=ON .. > compile_log
+make -j$cpu_num >> compile_log
 #make install >> compile_log
 cp_whl
 cd ..
@@ -265,8 +312,11 @@ function compile_app_py3(){
 mkdir -p build_app_py3
 cd build_app_py3
 clean_whl
-cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_3 -DPYTHON_LIBRARY=$PYTHON_LIBRARY_3 -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_3 -DAPP=ON ..> compile_log
-make -j10 >> compile_log
+cmake -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR_3 \
+    -DPYTHON_LIBRARY=$PYTHON_LIBRARY_3 \
+    -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE_3 \
+    -DAPP=ON ..> compile_log
+make -j$cpu_num >> compile_log
 #make install >> compile_log
 cp_whl
 cd ..
@@ -274,27 +324,27 @@ cd ..
 
 function upload_bin(){
     cd bin_package
-    python ../bos_conf/upload.py serving-cpu-avx-openblas-$version.tar.gz
-    python ../bos_conf/upload.py serving-cpu-avx-mkl-$version.tar.gz
-    python ../bos_conf/upload.py serving-cpu-noavx-openblas-$version.tar.gz
-    python ../bos_conf/upload.py serving-gpu-cuda10-$version.tar.gz
-    python ../bos_conf/upload.py serving-gpu-cuda9-$version.tar.gz
+    python ../bos_conf/upload.py bin serving-cpu-avx-openblas-$version.tar.gz
+    python ../bos_conf/upload.py bin serving-cpu-avx-mkl-$version.tar.gz
+    python ../bos_conf/upload.py bin serving-cpu-noavx-openblas-$version.tar.gz
+    python ../bos_conf/upload.py bin serving-gpu-cuda10-$version.tar.gz
+    python ../bos_conf/upload.py bin serving-gpu-cuda9-$version.tar.gz
     cd ..
 }
 
 function upload_whl(){
     cd whl_package
-    python ../bos_conf/upload_whl.py paddle_serving_client-$version-cp27-*
-    python ../bos_conf/upload_whl.py paddle_serving_client-$version-cp36-*
-    python ../bos_conf/upload_whl.py paddle_serving_client-$version-cp37-*
-    python ../bos_conf/upload_whl.py paddle_serving_server-$version-py2-none-any.whl
-    python ../bos_conf/upload_whl.py paddle_serving_server-$version-py3-none-any.whl
-    python ../bos_conf/upload_whl.py paddle_serving_server_gpu-$version.post9-py2-none-any.whl
-    python ../bos_conf/upload_whl.py paddle_serving_server_gpu-$version.post9-py3-none-any.whl
-    python ../bos_conf/upload_whl.py paddle_serving_server_gpu-$version.post10-py2-none-any.whl
-    python ../bos_conf/upload_whl.py paddle_serving_server_gpu-$version.post10-py3-none-any.whl
-    python ../bos_conf/upload_whl.py paddle_serving_app-$app_version-py2-none-any.whl
-    python ../bos_conf/upload_whl.py paddle_serving_app-$app_version-py3-none-any.whl
+    python ../bos_conf/upload.py whl paddle_serving_client-$version-cp27-*
+    python ../bos_conf/upload.py whl paddle_serving_client-$version-cp36-*
+    python ../bos_conf/upload.py whl paddle_serving_client-$version-cp37-*
+    python ../bos_conf/upload.py whl paddle_serving_server-$version-py2-none-any.whl
+    python ../bos_conf/upload.py whl paddle_serving_server-$version-py3-none-any.whl
+    python ../bos_conf/upload.py whl paddle_serving_server_gpu-$version.post9-py2-none-any.whl
+    python ../bos_conf/upload.py whl paddle_serving_server_gpu-$version.post9-py3-none-any.whl
+    python ../bos_conf/upload.py whl paddle_serving_server_gpu-$version.post10-py2-none-any.whl
+    python ../bos_conf/upload.py whl paddle_serving_server_gpu-$version.post10-py3-none-any.whl
+    python ../bos_conf/upload.py whl paddle_serving_app-$app_version-py2-none-any.whl
+    python ../bos_conf/upload.py whl paddle_serving_app-$app_version-py3-none-any.whl
     cd ..
 }
 
@@ -308,17 +358,18 @@ function compile(){
 
     #cpu-noavx-openblas
     #compile_cpu OFF OFF
-
+ 
     #gpu
     #compile_gpu_cuda9
     #compile_gpu_cuda10
     #compile_gpu_cuda93
     #compile_gpu_cuda103
     #compile_trt
+    compile_trt_py3
 
     #client
     #compile_client
-    change_py_version 35 && compile_client_py3
+    #change_py_version 35 && compile_client_py3
     #change_py_version 36 && compile_client_py3
     #change_py_version 37 && compile_client_py3
 
