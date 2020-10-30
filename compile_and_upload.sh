@@ -65,12 +65,14 @@ WITHMKL=$2
 if [ $WITHAVX = "ON" -a $WITHMKL = "OFF" ]; then
     mkdir -p serving-cpu-avx-openblas-$version
     cp ../build_server/output/demo/serving/bin/serving  serving-cpu-avx-openblas-$version
+    cp ../build_server/third_party/Paddle/src/extern_paddle/paddle/lib/libpaddle_fluid.so serving-cpu-avx-openblas-$version
     cp_lib serving-cpu-avx-openblas-$version
     tar -czvf serving-cpu-avx-openblas-$version.tar.gz serving-cpu-avx-openblas-$version/
 fi
 if [ $WITHAVX = "OFF" -a $WITHMKL = "OFF" ]; then
     mkdir -p serving-cpu-noavx-openblas-$version
     cp ../build_server/output/demo/serving/bin/serving serving-cpu-noavx-openblas-$version
+    cp ../build_server/third_party/Paddle/src/extern_paddle/paddle/lib/libpaddle_fluid.so serving-cpu-noavx-openblas-$version
     cp_lib serving-cpu-noavx-openblas-$version
     tar -czvf serving-cpu-noavx-openblas-$version.tar.gz serving-cpu-noavx-openblas-$version/
 fi
@@ -78,6 +80,7 @@ if [ $WITHAVX = "ON" -a $WITHMKL = "ON" ]; then
     mkdir -p serving-cpu-avx-mkl-$version
     cp ../build_server/output/demo/serving/bin/* serving-cpu-avx-mkl-$version
     cp ../build_server/third_party/install/Paddle//third_party/install/mkldnn/lib/libdnnl.so.1 serving-cpu-avx-mkl-$version
+    cp ../build_server/third_party/Paddle/src/extern_paddle/paddle/lib/libpaddle_fluid.so serving-cpu-avx-mkl-$version
     cp_lib serving-cpu-avx-mkl-$version
     tar -czvf serving-cpu-avx-mkl-$version.tar.gz serving-cpu-avx-mkl-$version/
 fi
@@ -91,10 +94,9 @@ CUDA_version=$1
 mkdir -p serving-gpu-$CUDA_version-$version
 cp ../build_gpu_server_$CUDA_version/output/demo/serving/bin/* serving-gpu-$CUDA_version-$version
 cp ../build_gpu_server_$CUDA_version/third_party/install/Paddle//third_party/install/mklml/lib/* serving-gpu-$CUDA_version-$version
-if [ $1 == trt ]
-then
 cp ../build_gpu_server_$CUDA_version/third_party/Paddle/src/extern_paddle/paddle/lib/libpaddle_fluid.so serving-gpu-$CUDA_version-$version
-else
+if [ $1 != trt ]
+then
 cp ../build_gpu_server_$CUDA_version/third_party/install/Paddle//third_party/install/mkldnn/lib/libdnnl.so.1 serving-gpu-$CUDA_version-$version
 fi
 cp_lib serving-gpu-$CUDA_version-$version
@@ -329,6 +331,7 @@ function upload_bin(){
     python ../bos_conf/upload.py bin serving-cpu-noavx-openblas-$version.tar.gz
     python ../bos_conf/upload.py bin serving-gpu-cuda10-$version.tar.gz
     python ../bos_conf/upload.py bin serving-gpu-cuda9-$version.tar.gz
+    python ../bos_conf/upload.py bin serving-gpu-trt-$version.tar.gz
     cd ..
 }
 
@@ -343,6 +346,8 @@ function upload_whl(){
     python ../bos_conf/upload.py whl paddle_serving_server_gpu-$version.post9-py3-none-any.whl
     python ../bos_conf/upload.py whl paddle_serving_server_gpu-$version.post10-py2-none-any.whl
     python ../bos_conf/upload.py whl paddle_serving_server_gpu-$version.post10-py3-none-any.whl
+    python ../bos_conf/upload.py whl paddle_serving_server_gpu-$version.trt-py2-none-any.whl
+    python ../bos_conf/upload.py whl paddle_serving_server_gpu-$version.trt-py3-none-any.whl
     python ../bos_conf/upload.py whl paddle_serving_app-$app_version-py2-none-any.whl
     python ../bos_conf/upload.py whl paddle_serving_app-$app_version-py3-none-any.whl
     cd ..
@@ -350,32 +355,32 @@ function upload_whl(){
 
 function compile(){
     #cpu-avx-openblas $1-avx  $2-mkl
-    #compile_cpu ON OFF
-    #compile_cpu_py3 ON OFF
+    compile_cpu ON OFF
+    compile_cpu_py3 ON OFF
 
     #cpu-avx-mkl
-    #compile_cpu ON ON
+    compile_cpu ON ON
 
     #cpu-noavx-openblas
-    #compile_cpu OFF OFF
+    compile_cpu OFF OFF
  
     #gpu
-    #compile_gpu_cuda9
-    #compile_gpu_cuda10
-    #compile_gpu_cuda93
-    #compile_gpu_cuda103
-    #compile_trt
+    compile_gpu_cuda9
+    compile_gpu_cuda10
+    compile_gpu_cuda93
+    compile_gpu_cuda103
+    compile_trt
     compile_trt_py3
 
     #client
-    #compile_client
-    #change_py_version 35 && compile_client_py3
-    #change_py_version 36 && compile_client_py3
-    #change_py_version 37 && compile_client_py3
+    compile_client
+    change_py_version 35 && compile_client_py3
+    change_py_version 36 && compile_client_py3
+    change_py_version 37 && compile_client_py3
 
     #app
-    #compile_app
-    #change_py_version 36 && compile_app_py3
+    compile_app
+    change_py_version 36 && compile_app_py3
 }
 
 #compile
