@@ -57,7 +57,8 @@ class LocalPredictor(object):
                           mem_optim=True,
                           ir_optim=False,
                           use_trt=False,
-                          use_feed_fetch_ops=False):
+                          use_feed_fetch_ops=False,
+                          kvtable_paths=None):
         """
         Load model config and set the engine config for the paddle predictor
    
@@ -118,6 +119,15 @@ class LocalPredictor(object):
                     min_subgraph_size=3,
                     use_static=False,
                     use_calib_mode=False)
+
+        if kvtable_path:
+            if not isinstance(kvtable_path, list):
+                raise ValueError("kvtable_path should be list type")
+            shard_nums = []
+            for kvtable_path in kvtable_paths:
+                shard_num = len(os.listdir(kvtable_path) - 2)
+                shard_nums.append(shar_num)
+            config.set_kvtable(kvtable_paths, shard_nums)
 
         self.predictor = create_paddle_predictor(config)
 
