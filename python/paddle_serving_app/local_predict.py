@@ -20,7 +20,7 @@ import google.protobuf.text_format
 import numpy as np
 import argparse
 import paddle.fluid as fluid
-from .proto import general_model_config_pb2 as m_config
+from paddle.fluid.proto import general_model_config_pb2 as m_config
 from paddle.fluid.core import PaddleTensor
 from paddle.fluid.core import AnalysisConfig
 from paddle.fluid.core import create_paddle_predictor
@@ -120,13 +120,13 @@ class LocalPredictor(object):
                     use_static=False,
                     use_calib_mode=False)
 
-        if kvtable_path:
-            if not isinstance(kvtable_path, list):
-                raise ValueError("kvtable_path should be list type")
+        if kvtable_paths:
+            if not isinstance(kvtable_paths, list):
+                raise ValueError("kvtable_paths should be list type")
             shard_nums = []
             for kvtable_path in kvtable_paths:
-                shard_num = len(os.listdir(kvtable_path) - 2)
-                shard_nums.append(shar_num)
+                shard_num = len(os.listdir(kvtable_path)) - 1
+                shard_nums.append(shard_num)
             config.set_kvtable(kvtable_paths, shard_nums)
 
         self.predictor = create_paddle_predictor(config)
@@ -201,7 +201,7 @@ class LocalPredictor(object):
             if batch == False:
                 input_tensor.copy_from_cpu(feed[name][np.newaxis, :])
             else:
-                input_tensor.copy_from_cpu(feed[name])
+                input_tensor.copy_from_cpu(feed[name][:, np.newaxis])
         output_tensors = []
         output_names = self.predictor.get_output_names()
         for output_name in output_names:
