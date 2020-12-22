@@ -45,6 +45,7 @@ message EngineDesc {
   optional bool force_update_static_cache = 15;
   optional bool enable_ir_optimization = 16;
   optional bool use_trt = 17;
+  repeated string kvtable_paths = 18;
 };
 
 // model_toolkit conf

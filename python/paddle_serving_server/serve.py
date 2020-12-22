@@ -23,9 +23,13 @@ import json
 import base64
 import time
 from multiprocessing import Process
-from web_service import WebService, port_is_available
+from .web_service import WebService, port_is_available
 from flask import Flask, request
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+import six
+if six.PY2:
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+else:
+    from http.server import BaseHTTPRequestHandler, HTTPServer
 
 
 def parse_args():  # pylint: disable=doc-string-missing
@@ -70,6 +74,11 @@ def parse_args():  # pylint: disable=doc-string-missing
         action="store_true",
         help="Use Multi-language-service")
     parser.add_argument(
+        "--enable_kvtable",
+        default=False,
+        action="store_true",
+        help="Enable kvtable")
+    parser.add_argument(
         "--product_name",
         type=str,
         default=None,
@@ -95,6 +104,7 @@ def start_standard_model(serving_port):  # pylint: disable=doc-string-missing
     use_mkl = args.use_mkl
     use_encryption_model = args.use_encryption_model
     use_multilang = args.use_multilang
+    enable_kvtable = args.enable_kvtable
 
     if model == "":
         print("You must specify your serving model")
@@ -124,6 +134,7 @@ def start_standard_model(serving_port):  # pylint: disable=doc-string-missing
     server.set_max_body_size(max_body_size)
     server.set_port(port)
     server.use_encryption_model(use_encryption_model)
+    server.enable_kvtable(enable_kvtable)
     if args.product_name != None:
         server.set_product_name(args.product_name)
     if args.container_id != None:

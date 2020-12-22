@@ -58,7 +58,7 @@ package_dir={'paddle_serving_app':
 	     '${PADDLE_SERVING_BINARY_DIR}/python/paddle_serving_app/reader/pddet',}
 
 setup(
-    name='paddle-serving-app',
+    name='paddle-serving-app-imt',
     version=serving_app_version.replace('-', ''),
     description=
     ('Paddle Serving Package for saved model with PaddlePaddle'),

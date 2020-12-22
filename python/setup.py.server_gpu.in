@@ -31,7 +31,7 @@ util.gen_pipeline_code("paddle_serving_server_gpu")
 
 REQUIRED_PACKAGES = [
     'six >= 1.10.0', 'protobuf >= 3.11.0', 'grpcio >= 1.28.1', 'grpcio-tools >= 1.28.1',
-    'paddle_serving_client', 'flask >= 1.1.1', 'paddle_serving_app', 'func_timeout', 'pyyaml'
+    'flask >= 1.1.1', 'paddle_serving_app', 'func_timeout', 'pyyaml'
 ]
 
 packages=['paddle_serving_server_gpu',
@@ -57,7 +57,7 @@ package_dir={'paddle_serving_server_gpu':
 package_data={'paddle_serving_server_gpu': ['pipeline/gateway/libproxy_server.so'],}
 
 setup(
-    name='paddle-serving-server-gpu',
+    name='paddle-serving-server-gpu-imt',
     version=serving_server_version.replace('-', '') + "." + cuda_version,
     description=
     ('Paddle Serving Package for saved model with PaddlePaddle'),

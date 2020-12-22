@@ -62,8 +62,8 @@ package_dir={'paddle_serving_client':
              '${PADDLE_SERVING_BINARY_DIR}/python/paddle_serving_client',
              'paddle_serving_client.proto':
              '${PADDLE_SERVING_BINARY_DIR}/python/paddle_serving_client/proto',
-             'paddle_serving_client.io':
-             '${PADDLE_SERVING_BINARY_DIR}/python/paddle_serving_client/io',
+             #'paddle_serving_client.io':
+             #'${PADDLE_SERVING_BINARY_DIR}/python/paddle_serving_client/io',
 	         'paddle_serving_client.metric':
 	         '${PADDLE_SERVING_BINARY_DIR}/python/paddle_serving_client/metric',
 	         'paddle_serving_client.utils':
@@ -78,7 +78,7 @@ package_dir={'paddle_serving_client':
              '${PADDLE_SERVING_BINARY_DIR}/python/paddle_serving_client/pipeline/gateway/proto'}
 
 setup(
-    name='paddle-serving-client',
+    name='paddle-serving-client-imt',
     version=serving_client_version.replace('-', ''),
     description=
     ('Paddle Serving Package for saved model with PaddlePaddle'),

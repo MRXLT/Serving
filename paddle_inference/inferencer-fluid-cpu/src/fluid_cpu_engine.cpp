@@ -52,7 +52,7 @@ REGIST_FACTORY_OBJECT_IMPL_WITH_NAME(
     ::baidu::paddle_serving::predictor::InferEngine,
     "FLUID_CPU_NATIVE_DIR_SIGMOID");
 
-#if 1
+#if 0
 REGIST_FACTORY_OBJECT_IMPL_WITH_NAME(
     ::baidu::paddle_serving::predictor::FluidInferEngine<
         FluidCpuAnalysisEncryptCore>,

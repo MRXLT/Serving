@@ -161,6 +161,7 @@ class Server(object):
         self.product_name = None
         self.container_id = None
         self.model_config_paths = None  # for multi-model in a workflow
+        self.use_kvtable = False
 
     def get_fetch_list(self):
         fetch_names = [var.alias_name for var in self.model_conf.fetch_var]
@@ -200,6 +201,9 @@ class Server(object):
 
     def use_encryption_model(self, flag=False):
         self.encryption_model = flag
+
+    def enable_kvtable(self, flag=False):
+        self.use_kvtable = flag
 
     def set_product_name(self, product_name=None):
         if product_name == None:
@@ -245,6 +249,14 @@ class Server(object):
                     engine.type = "FLUID_GPU_ANALYSIS_ENCRYPT"
                 else:
                     engine.type = "FLUID_GPU_ANALYSIS_DIR"
+            if self.use_kvtable:
+                kvtable_paths = []
+                for path in os.listdir(model_config_path):
+                    if os.path.isdir(os.path.join(model_config_path, path)):
+                        kvtable_paths.append(
+                            os.path.join(model_config_path, path))
+                        engine.kvtable_paths.append(
+                            os.path.join(model_config_path, path))
 
             self.model_toolkit_conf.engines.extend([engine])
 
@@ -367,7 +379,7 @@ class Server(object):
         device_version = self.get_device_version()
         folder_name = device_version + serving_server_version
         tar_name = folder_name + ".tar.gz"
-        bin_url = "https://paddle-serving.bj.bcebos.com/bin/" + tar_name
+        bin_url = "https://rec-mind.bj.bcebos.com/bin/" + tar_name
         self.server_path = os.path.join(self.module_path, folder_name)
 
         #acquire lock

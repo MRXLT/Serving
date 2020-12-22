@@ -43,6 +43,10 @@ class InferEngineCreationParams {
 
   void set_path(const std::string& path) { _path = path; }
 
+  void set_kvtable_paths(const std::vector<std::string>& paths) {
+    _kvtable_paths = paths;
+  }
+
   void set_enable_memory_optimization(bool enable_memory_optimization) {
     _enable_memory_optimization = enable_memory_optimization;
   }
@@ -75,6 +79,8 @@ class InferEngineCreationParams {
 
   std::string get_path() const { return _path; }
 
+  std::vector<std::string> get_kvtable_paths() const { return _kvtable_paths; }
+
   void dump() const {
     LOG(INFO) << "InferEngineCreationParams: "
               << "model_path = " << _path << ", "
@@ -87,6 +93,7 @@ class InferEngineCreationParams {
 
  private:
   std::string _path;
+  std::vector<std::string> _kvtable_paths;
   bool _enable_memory_optimization;
   bool _enable_ir_optimization;
   bool _static_optimization;
@@ -146,6 +153,14 @@ class ReloadableInferEngine : public InferEngine {
     _reload_tag_file = conf.reloadable_meta();
     _reload_mode_tag = conf.reloadable_type();
     _model_data_path = conf.model_data_path();
+    int size = conf.kvtable_paths().size();
+    LOG(INFO) << "Init with " << size << " kvtables";
+    if (size > 0) {
+      _kvtable_paths.resize(size);
+      for (int i = 0; i < size; i++) {
+        _kvtable_paths[i] = conf.kvtable_paths(i);
+      }
+    }
     _infer_thread_num = conf.runtime_thread_num();
     _infer_batch_size = conf.batch_infer_size();
     _infer_batch_align = conf.enable_batch_align();
@@ -177,6 +192,8 @@ class ReloadableInferEngine : public InferEngine {
       _infer_engine_params.set_force_update_static_cache(
           force_update_static_cache);
     }
+
+    _infer_engine_params.set_kvtable_paths(_kvtable_paths);
 
     if (conf.has_use_trt()) {
       _infer_engine_params.set_use_trt(conf.use_trt());
@@ -341,6 +358,7 @@ class ReloadableInferEngine : public InferEngine {
 
  protected:
   std::string _model_data_path;
+  std::vector<std::string> _kvtable_paths;
   InferEngineCreationParams _infer_engine_params;
 
  private:

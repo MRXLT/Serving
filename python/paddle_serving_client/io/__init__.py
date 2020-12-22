@@ -24,7 +24,7 @@ import paddle.fluid as fluid
 from paddle.fluid.core import CipherUtils
 from paddle.fluid.core import CipherFactory
 from paddle.fluid.core import Cipher
-from ..proto import general_model_config_pb2 as model_conf
+from .proto import general_model_config_pb2 as model_conf
 import os
 
 

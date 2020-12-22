@@ -13,7 +13,9 @@
 // limitations under the License.
 
 #pragma once
+#include <dirent.h>
 #include <pthread.h>
+#include <sys/stat.h>
 #include <fstream>
 #include <map>
 #include <string>
@@ -187,7 +189,32 @@ class FluidCpuAnalysisDirCore : public FluidFamilyCore {
     analysis_config.DisableGpu();
     analysis_config.SwitchSpecifyInputNames(true);
     analysis_config.SetCpuMathLibraryNumThreads(1);
+    LOG(INFO) << "debug";
+    std::vector<std::string> kvtable_paths = params.get_kvtable_paths();
+    LOG(INFO) << "Got " << kvtable_paths.size() << " kvtables.";
+    if (kvtable_paths.size() > 0) {
+      std::vector<int32_t> shard_nums;
+      for (int i = 0; i < kvtable_paths.size(); i++) {
+        DIR* p_dir;
+        struct dirent* p_dirent;
 
+        if ((p_dir = opendir((kvtable_paths[i]).c_str())) == NULL) {
+          LOG(ERROR) << "check kvtable path:" << (kvtable_paths[i]).c_str()
+                     << "failed";
+          return -1;
+        }
+        int32_t shard_num = 0;
+        while ((p_dirent = readdir(p_dir))) {
+          std::string s(p_dirent->d_name);
+          if (s.find("shard") != std::string::npos) {
+            shard_num += 1;
+          }
+        }
+        shard_nums.push_back(shard_num);
+        closedir(p_dir);
+      }
+      analysis_config.SetKvTable(kvtable_paths, shard_nums);
+    }
     if (params.enable_memory_optimization()) {
       analysis_config.EnableMemoryOptim();
     }
@@ -528,6 +555,7 @@ class FluidCpuAnalysisDirWithSigmoidCore : public FluidCpuWithSigmoidCore {
     return 0;
   }
 };
+/*
 class FluidCpuAnalysisEncryptCore : public FluidFamilyCore {
  public:
   void ReadBinaryFile(const std::string& filename, std::string* contents) {
@@ -582,6 +610,7 @@ class FluidCpuAnalysisEncryptCore : public FluidFamilyCore {
     return 0;
   }
 };
+*/
 }  // namespace fluid_cpu
 }  // namespace paddle_serving
 }  // namespace baidu
